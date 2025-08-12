@@ -225,6 +225,36 @@
       font-size: 0.9rem;
     }
 
+    /* Typing Animation */
+    .typing-message {
+      margin-top: 40px;
+      min-height: 60px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 2px;
+    }
+    
+    .typing-message p {
+      font-size: 1.1rem;
+      color: var(--green-600);
+      font-weight: 500;
+      font-style: italic;
+      margin: 0;
+      text-align: center;
+    }
+    
+    .cursor {
+      color: var(--green-500);
+      font-weight: bold;
+      animation: blink 1s infinite;
+    }
+    
+    @keyframes blink {
+      0%, 50% { opacity: 1; }
+      51%, 100% { opacity: 0; }
+    }
+
     /* Cards */
     .card {
       background: var(--white);
@@ -780,19 +810,9 @@
       <section class="hero">
         <h1>Schedule Emails<br>for the Future</h1>
         <p>Compose emails and letters with precision timing. Professional scheduling made simple with our elegant interface.</p>
-        <div class="hero-stats">
-          <div class="stat">
-            <span class="stat-number">1M+</span>
-            <span class="stat-label">Emails Scheduled</span>
-          </div>
-          <div class="stat">
-            <span class="stat-number">50K+</span>
-            <span class="stat-label">Active Users</span>
-          </div>
-          <div class="stat">
-            <span class="stat-number">99.9%</span>
-            <span class="stat-label">Delivery Rate</span>
-          </div>
+        <div class="typing-message">
+          <p id="typingText"></p>
+          <span class="cursor">|</span>
         </div>
       </section>
 
@@ -1071,7 +1091,7 @@
               <div style="border-left: 4px solid #dc2626; padding-left: 16px;">
                 <h4 style="color: #dc2626; margin-bottom: 8px;">Error: "Invalid template or parameters"</h4>
                 <p style="color: var(--txt-secondary); margin: 0; font-size: 0.9rem;">
-                  Your EmailJS template is missing required variables. Ensure it includes: {{to_email}}, {{subject}}, {{message}}, {{from_name}}, {{scheduled_for}}
+                  Your EmailJS template is missing required variables. Ensure it includes: {{to_email}}, {{subject}}, {{message}}, {{from_name}}, {{scheduled_for}}, {{created_on}}
                 </p>
               </div>
 
@@ -1081,7 +1101,8 @@
                   <strong>Subject:</strong> {{subject}}<br>
                   <strong>To:</strong> {{to_email}}<br><br>
                   {{message}}<br><br>
-                  <em>Scheduled for: {{scheduled_for}}</em><br>
+                  <em>Originally scheduled on: {{created_on}}</em><br>
+                  <em>Scheduled to send: {{scheduled_for}}</em><br>
                   <em>Sent via FuturEmail by {{from_name}}</em>
                 </p>
               </div>
@@ -1269,12 +1290,25 @@
       const emailRows = document.querySelectorAll('#email-row, #email-row-2');
       const letterRows = document.querySelector('#letter-rows');
       
+      // Always show the "To" field (first field in email-row)
       emailRows.forEach(row => {
-        row.style.display = isEmail ? '' : 'none';
+        row.style.display = '';
       });
       
+      // Show/hide letter-specific address fields
       letterRows.style.display = isEmail ? 'none' : '';
       letterRows.setAttribute('aria-hidden', isEmail ? 'true' : 'false');
+      
+      // Update the "To" field label and placeholder for letters
+      const toLabel = document.querySelector('label[for="to"]');
+      const toInput = document.getElementById('to');
+      if (isEmail) {
+        toLabel.textContent = 'To';
+        toInput.placeholder = 'recipient@example.com';
+      } else {
+        toLabel.textContent = 'Email Address';
+        toInput.placeholder = 'recipient@example.com (for delivery)';
+      }
       
       fields.previewType.textContent = isEmail ? 'Email' : 'Letter';
       fields.previewType.className = isEmail ? 'chip' : 'chip chip-warning';
@@ -1317,6 +1351,9 @@
         const to = fields.to.value.trim();
         if (!to || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(to)) errs.push('Provide a valid recipient email.');
       } else {
+        // For letters, we need an email address to send to
+        const to = fields.to.value.trim();
+        if (!to || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(to)) errs.push('Provide a valid recipient email address.');
         if (!fields.recipientName.value.trim()) errs.push('Recipient name is required.');
         if (!fields.addressLine1.value.trim()) errs.push('Address line 1 is required.');
       }
@@ -1340,14 +1377,16 @@
           whenISO
         };
       }
+      // For letters, we now send them as emails with address in the message
       return {
         type: 'letter',
         payload: {
+          to: fields.to.value.trim(), // Now required for letters too
           recipientName: fields.recipientName.value.trim(),
           addressLine1: fields.addressLine1.value.trim(),
           addressLine2: fields.addressLine2.value.trim(),
           city: fields.city.value.trim(),
-          subject: fields.subject.value.trim(),
+          subject: fields.subject.value.trim() || 'Letter',
           message: fields.message.value
         },
         whenISO
@@ -1372,7 +1411,7 @@
 
     // Enhanced email sending with better error handling
     async function sendEmail(item) {
-      if (item.type !== 'email') return 'skipped';
+      if (item.type !== 'email' && item.type !== 'letter') return 'skipped';
       
       // Check if EmailJS is properly configured
       if (!window.emailjs) {
@@ -1383,11 +1422,29 @@
         throw new Error('EmailJS not configured. Contact the website administrator.');
       }
 
+      let emailMessage = item.payload.message;
+      let emailSubject = item.payload.subject || '(No subject)';
+      
+      // For letters, format the message to include address information
+      if (item.type === 'letter') {
+        const addressLines = [
+          item.payload.recipientName,
+          item.payload.addressLine1,
+          item.payload.addressLine2,
+          item.payload.city
+        ].filter(Boolean);
+        
+        const addressBlock = addressLines.join('\n');
+        emailMessage = `Letter addressed to:\n${addressBlock}\n\n${emailMessage}`;
+        emailSubject = item.payload.subject || 'Letter';
+      }
+
       const params = {
         to_email: item.payload.to,
-        subject: item.payload.subject || '(No subject)',
-        message: item.payload.message,
+        subject: emailSubject,
+        message: emailMessage,
         scheduled_for: fmtLocal(item.whenISO),
+        created_on: fmtLocal(item.createdISO),
         from_name: 'FuturEmail Scheduler'
       };
 
@@ -1419,9 +1476,10 @@
       const item = STATE.items[idx];
       if (item.status === 'sent') return;
 
-      if (item.type === 'email') {
+      if (item.type === 'email' || item.type === 'letter') {
         // Show sending status
-        toast('Sending email...', 'info');
+        const typeLabel = item.type === 'letter' ? 'letter' : 'email';
+        toast(`Sending ${typeLabel}...`, 'info');
         
         sendEmail(item)
           .then(() => {
@@ -1430,7 +1488,8 @@
             delete item.error; // Clear any previous errors
             saveState();
             renderList();
-            toast(`✅ Email sent successfully to ${item.payload.to}`);
+            const typeLabel = item.type === 'letter' ? 'letter' : 'email';
+            toast(`✅ ${typeLabel.charAt(0).toUpperCase() + typeLabel.slice(1)} sent successfully to ${item.payload.to}`);
           })
           .catch((err) => {
             console.error('Send error:', err);
@@ -1439,22 +1498,15 @@
             saveState();
             renderList();
             
+            const typeLabel = item.type === 'letter' ? 'Letter' : 'Email';
             if (err.message.includes('not configured')) {
               toast('⚙️ Email service temporarily unavailable. Please try again later.', 'error');
             } else if (err.message.includes('authentication')) {
               toast('🔐 Email service error. Please contact support if this persists.', 'error');
             } else {
-              toast(`❌ Email failed: ${err.message}`, 'error');
+              toast(`❌ ${typeLabel} failed: ${err.message}`, 'error');
             }
           });
-      } else {
-        // For letters, just mark as sent in this demo
-        item.status = 'sent';
-        item.sentISO = new Date().toISOString();
-        delete item.error; // Clear any previous errors
-        saveState();
-        renderList();
-        toast('📝 Letter marked as sent (demo mode)');
       }
     }
 
@@ -1700,6 +1752,63 @@
       } catch (e) { 
         console.warn('Email init failed:', e); 
       }
+    })();
+
+    // Typing animation for hero message
+    (function initTypingAnimation() {
+      const messages = [
+        "Sometimes the perfect moment is in the future...",
+        "Write with love, send with intention 💝",
+        "Every message matters, timing makes it special ✨",
+        "Connecting hearts across time and space 💌"
+      ];
+      
+      let messageIndex = 0;
+      let charIndex = 0;
+      let isDeleting = false;
+      const typingElement = document.getElementById('typingText');
+      const typingSpeed = 100;
+      const deletingSpeed = 50;
+      const pauseTime = 2000;
+      
+      function typeMessage() {
+        const currentMessage = messages[messageIndex];
+        
+        if (!isDeleting) {
+          // Typing
+          typingElement.textContent = currentMessage.substring(0, charIndex + 1);
+          charIndex++;
+          
+          if (charIndex === currentMessage.length) {
+            // Finished typing, pause then start deleting
+            setTimeout(() => {
+              isDeleting = true;
+              typeMessage();
+            }, pauseTime);
+            return;
+          }
+          
+          setTimeout(typeMessage, typingSpeed);
+        } else {
+          // Deleting
+          typingElement.textContent = currentMessage.substring(0, charIndex);
+          charIndex--;
+          
+          if (charIndex < 0) {
+            // Finished deleting, move to next message
+            isDeleting = false;
+            messageIndex = (messageIndex + 1) % messages.length;
+            charIndex = 0;
+            setTimeout(typeMessage, 500);
+            return;
+          }
+          
+          setTimeout(typeMessage, deletingSpeed);
+        }
+      }
+      
+      // Start the animation after a short delay
+      setTimeout(typeMessage, 1000);
     })();
   </script>
 </body>
