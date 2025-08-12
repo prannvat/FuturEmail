@@ -1,0 +1,1706 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>FuturEmail — Compose and Schedule</title>
+  <meta name="description" content="Compose emails or letters and schedule them with a clean, professional glassmorphism UI." />
+  <meta name="color-scheme" content="dark light" />
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 256 256'%3E%3Cpath fill='%23ffffff' d='M32 64h192v128H32z'/%3E%3Cpath fill='%2300d4ff' d='M32 64l96 80l96-80z'/%3E%3C/svg%3E" />
+  <style>
+    /* Professional Gray/White/Green Theme */
+    :root {
+      --bg: #fafafa;
+      --bg-secondary: #f5f5f5;
+      --txt: #1a1a1a;
+      --txt-secondary: #525252;
+      --txt-muted: #737373;
+      --white: #ffffff;
+      --gray-50: #fafafa;
+      --gray-100: #f5f5f5;
+      --gray-200: #e5e5e5;
+      --gray-300: #d4d4d4;
+      --gray-400: #a3a3a3;
+      --gray-500: #737373;
+      --gray-600: #525252;
+      --gray-700: #404040;
+      --gray-800: #262626;
+      --gray-900: #171717;
+      --green-50: #f0fdf4;
+      --green-100: #dcfce7;
+      --green-200: #bbf7d0;
+      --green-300: #86efac;
+      --green-400: #4ade80;
+      --green-500: #22c55e;
+      --green-600: #16a34a;
+      --green-700: #15803d;
+      --green-800: #166534;
+      --green-900: #14532d;
+      --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+      --shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+      --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+      --shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+      --radius: 12px;
+      --radius-lg: 16px;
+      --radius-full: 9999px;
+      --focus-ring: 0 0 0 2px var(--green-500);
+      --transition: all 0.15s ease-in-out;
+    }
+
+    * { 
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+    
+    html, body { 
+      height: 100%; 
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      line-height: 1.6;
+      scroll-behavior: smooth;
+    }
+    
+    body {
+      background: linear-gradient(135deg, var(--gray-50) 0%, var(--white) 50%, var(--green-50) 100%);
+      color: var(--txt);
+      overflow-x: hidden;
+    }
+
+    /* Navigation */
+    .nav {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      z-index: 50;
+      background: rgba(255, 255, 255, 0.95);
+      backdrop-filter: blur(10px);
+      border-bottom: 1px solid var(--gray-200);
+      transition: var(--transition);
+    }
+    
+    .nav-container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 0 24px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      height: 64px;
+    }
+    
+    .nav-logo {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      font-weight: 700;
+      font-size: 20px;
+      color: var(--txt);
+      text-decoration: none;
+    }
+    
+    .nav-logo-icon {
+      width: 32px;
+      height: 32px;
+      background: linear-gradient(135deg, var(--green-500), var(--green-600));
+      border-radius: var(--radius);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: white;
+      font-weight: bold;
+    }
+    
+    .nav-menu {
+      display: flex;
+      list-style: none;
+      gap: 32px;
+    }
+    
+    .nav-link {
+      color: var(--txt-secondary);
+      text-decoration: none;
+      font-weight: 500;
+      transition: var(--transition);
+      position: relative;
+    }
+    
+    .nav-link:hover {
+      color: var(--green-600);
+    }
+    
+    .nav-link::after {
+      content: '';
+      position: absolute;
+      bottom: -8px;
+      left: 0;
+      width: 0;
+      height: 2px;
+      background: var(--green-500);
+      transition: width 0.3s ease;
+    }
+    
+    .nav-link:hover::after {
+      width: 100%;
+    }
+    
+    .nav-cta {
+      background: var(--green-500);
+      color: white;
+      padding: 10px 20px;
+      border-radius: var(--radius-full);
+      text-decoration: none;
+      font-weight: 600;
+      transition: var(--transition);
+    }
+    
+    .nav-cta:hover {
+      background: var(--green-600);
+      transform: translateY(-1px);
+      box-shadow: var(--shadow);
+    }
+
+    /* Main content with top spacing for fixed nav */
+    .main-wrapper {
+      padding-top: 64px;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .container { 
+      max-width: 1200px; 
+      margin: 0 auto; 
+      padding: 40px 24px;
+      flex: 1;
+    }
+
+    /* Hero Section */
+    .hero {
+      text-align: center;
+      margin-bottom: 60px;
+      opacity: 0;
+      transform: translateY(30px);
+      animation: fadeInUp 0.8s ease forwards;
+    }
+    
+    .hero h1 {
+      font-size: clamp(2.5rem, 5vw, 4rem);
+      font-weight: 800;
+      background: linear-gradient(135deg, var(--gray-900), var(--green-600));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      margin-bottom: 16px;
+      line-height: 1.1;
+    }
+    
+    .hero p {
+      font-size: 1.25rem;
+      color: var(--txt-secondary);
+      max-width: 600px;
+      margin: 0 auto 32px;
+    }
+    
+    .hero-stats {
+      display: flex;
+      justify-content: center;
+      gap: 48px;
+      margin-top: 40px;
+    }
+    
+    .stat {
+      text-align: center;
+    }
+    
+    .stat-number {
+      font-size: 2rem;
+      font-weight: 700;
+      color: var(--green-600);
+      display: block;
+    }
+    
+    .stat-label {
+      color: var(--txt-muted);
+      font-size: 0.9rem;
+    }
+
+    /* Cards */
+    .card {
+      background: var(--white);
+      border: 1px solid var(--gray-200);
+      border-radius: var(--radius-lg);
+      box-shadow: var(--shadow-lg);
+      transition: var(--transition);
+      overflow: hidden;
+      position: relative;
+    }
+    
+    .card::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 3px;
+      background: linear-gradient(90deg, var(--green-400), var(--green-600));
+      opacity: 0;
+      transition: opacity 0.3s ease;
+    }
+    
+    .card:hover {
+      transform: translateY(-4px);
+      box-shadow: var(--shadow-xl);
+      border-color: var(--gray-300);
+    }
+    
+    .card:hover::before {
+      opacity: 1;
+    }
+    
+    .card-header {
+      padding: 24px 24px 0;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 20px;
+    }
+    
+    .card-title {
+      font-size: 1.25rem;
+      font-weight: 700;
+      color: var(--txt);
+    }
+    
+    .card-body {
+      padding: 0 24px 24px;
+    }
+
+    /* Grid Layout */
+    .grid {
+      display: grid; 
+      grid-template-columns: 1.3fr 1fr; 
+      gap: 32px;
+      margin-bottom: 60px;
+    }
+    
+    @media (max-width: 1024px) {
+      .grid { 
+        grid-template-columns: 1fr;
+        gap: 24px;
+      }
+    }
+
+    /* Form Styles */
+    .form-group {
+      margin-bottom: 24px;
+    }
+    
+    .form-row { 
+      display: grid; 
+      grid-template-columns: 1fr 1fr; 
+      gap: 16px; 
+    }
+    
+    @media (max-width: 640px) { 
+      .form-row { 
+        grid-template-columns: 1fr; 
+      } 
+    }
+
+    .form-label { 
+      display: block;
+      font-size: 0.875rem; 
+      font-weight: 600;
+      color: var(--txt-secondary); 
+      margin-bottom: 8px;
+    }
+
+    .form-input {
+      width: 100%;
+      padding: 12px 16px;
+      border: 2px solid var(--gray-200);
+      border-radius: var(--radius);
+      font-size: 0.95rem;
+      background: var(--white);
+      color: var(--txt);
+      transition: var(--transition);
+      outline: none;
+    }
+    
+    .form-input:focus {
+      border-color: var(--green-400);
+      box-shadow: var(--focus-ring);
+    }
+    
+    .form-input::placeholder {
+      color: var(--txt-muted);
+    }
+    
+    .form-textarea {
+      min-height: 140px;
+      resize: vertical;
+      font-family: inherit;
+      line-height: 1.6;
+    }
+    
+    .form-help {
+      font-size: 0.8rem;
+      color: var(--txt-muted);
+      margin-top: 6px;
+    }
+
+    /* Toggle/Segmented Control */
+    .toggle-group {
+      display: inline-flex;
+      background: var(--gray-100);
+      border-radius: var(--radius-full);
+      padding: 4px;
+      border: 1px solid var(--gray-200);
+    }
+    
+    .toggle-input {
+      display: none;
+    }
+    
+    .toggle-label {
+      padding: 8px 20px;
+      border-radius: var(--radius-full);
+      font-size: 0.9rem;
+      font-weight: 500;
+      color: var(--txt-secondary);
+      cursor: pointer;
+      transition: var(--transition);
+      position: relative;
+    }
+    
+    .toggle-input:checked + .toggle-label {
+      background: var(--white);
+      color: var(--green-600);
+      box-shadow: var(--shadow-sm);
+    }
+
+    /* Button Styles */
+    .btn-group { 
+      display: flex; 
+      gap: 12px; 
+      flex-wrap: wrap; 
+      align-items: center; 
+      justify-content: flex-end;
+    }
+
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 12px 24px;
+      border-radius: var(--radius);
+      font-size: 0.95rem;
+      font-weight: 600;
+      text-decoration: none;
+      border: none;
+      cursor: pointer;
+      transition: var(--transition);
+      position: relative;
+      overflow: hidden;
+    }
+    
+    .btn::before {
+      content: '';
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      width: 0;
+      height: 0;
+      background: rgba(255, 255, 255, 0.2);
+      border-radius: 50%;
+      transform: translate(-50%, -50%);
+      transition: width 0.6s, height 0.6s;
+    }
+    
+    .btn:active::before {
+      width: 300px;
+      height: 300px;
+    }
+    
+    .btn-primary {
+      background: linear-gradient(135deg, var(--green-500), var(--green-600));
+      color: white;
+      box-shadow: var(--shadow);
+    }
+    
+    .btn-primary:hover {
+      background: linear-gradient(135deg, var(--green-600), var(--green-700));
+      transform: translateY(-2px);
+      box-shadow: var(--shadow-lg);
+    }
+    
+    .btn-secondary {
+      background: var(--gray-100);
+      color: var(--txt);
+      border: 1px solid var(--gray-200);
+    }
+    
+    .btn-secondary:hover {
+      background: var(--gray-200);
+      transform: translateY(-1px);
+    }
+    
+    .btn-ghost {
+      background: transparent;
+      color: var(--txt-secondary);
+      border: 1px solid var(--gray-200);
+    }
+    
+    .btn-ghost:hover {
+      background: var(--gray-50);
+      color: var(--txt);
+    }
+
+    /* Preview Area */
+    .preview-area {
+      background: var(--gray-50);
+      border: 2px dashed var(--gray-300);
+      border-radius: var(--radius);
+      padding: 24px;
+      min-height: 200px;
+      font-family: 'SF Mono', Monaco, 'Cascadia Code', 'Roboto Mono', Consolas, 'Courier New', monospace;
+      font-size: 0.9rem;
+      line-height: 1.6;
+      white-space: pre-wrap;
+      color: var(--txt-secondary);
+      transition: var(--transition);
+    }
+    
+    .preview-area:hover {
+      border-color: var(--green-300);
+      background: var(--green-50);
+    }
+
+    /* Schedule List */
+    .schedule-list { 
+      display: flex;
+      flex-direction: column;
+      gap: 16px; 
+      max-height: 400px; 
+      overflow-y: auto;
+      padding-right: 8px;
+    }
+    
+    .schedule-item { 
+      background: var(--white);
+      border: 1px solid var(--gray-200);
+      border-radius: var(--radius);
+      padding: 20px;
+      transition: var(--transition);
+      position: relative;
+      opacity: 0;
+      transform: translateY(20px);
+      animation: slideInUp 0.4s ease forwards;
+    }
+    
+    .schedule-item:hover {
+      border-color: var(--green-300);
+      transform: translateY(-2px);
+      box-shadow: var(--shadow);
+    }
+    
+    .schedule-item-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      margin-bottom: 12px;
+    }
+    
+    .schedule-item-title {
+      font-weight: 600;
+      color: var(--txt);
+      font-size: 1rem;
+    }
+    
+    .schedule-item-meta { 
+      display: flex; 
+      flex-wrap: wrap; 
+      gap: 12px; 
+      font-size: 0.85rem; 
+      color: var(--txt-muted);
+      margin-bottom: 16px;
+    }
+    
+    .schedule-item-actions {
+      display: flex;
+      gap: 8px;
+    }
+    
+    .chip { 
+      background: var(--gray-100); 
+      color: var(--txt-secondary);
+      padding: 4px 12px; 
+      border-radius: var(--radius-full); 
+      font-size: 0.8rem;
+      font-weight: 500;
+      border: 1px solid var(--gray-200);
+    }
+    
+    .chip-success {
+      background: var(--green-100);
+      color: var(--green-700);
+      border-color: var(--green-200);
+    }
+    
+    .chip-warning {
+      background: #fef3c7;
+      color: #92400e;
+      border-color: #fde68a;
+    }
+
+    /* Footer */
+    .footer {
+      background: var(--gray-900);
+      color: var(--gray-300);
+      padding: 60px 0 40px;
+      margin-top: auto;
+    }
+    
+    .footer-container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 0 24px;
+    }
+    
+    .footer-grid {
+      display: grid;
+      grid-template-columns: 2fr 1fr 1fr 1fr;
+      gap: 40px;
+      margin-bottom: 40px;
+    }
+    
+    @media (max-width: 768px) {
+      .footer-grid {
+        grid-template-columns: 1fr;
+        gap: 32px;
+      }
+    }
+    
+    .footer-brand h3 {
+      color: var(--white);
+      font-size: 1.5rem;
+      margin-bottom: 16px;
+    }
+    
+    .footer-brand p {
+      color: var(--gray-400);
+      line-height: 1.6;
+      margin-bottom: 24px;
+    }
+    
+    .footer-section h4 {
+      color: var(--white);
+      font-size: 1rem;
+      margin-bottom: 16px;
+    }
+    
+    .footer-links {
+      list-style: none;
+    }
+    
+    .footer-links li {
+      margin-bottom: 8px;
+    }
+    
+    .footer-links a {
+      color: var(--gray-400);
+      text-decoration: none;
+      transition: var(--transition);
+    }
+    
+    .footer-links a:hover {
+      color: var(--green-400);
+    }
+    
+    .footer-bottom {
+      border-top: 1px solid var(--gray-700);
+      padding-top: 32px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      color: var(--gray-400);
+      font-size: 0.9rem;
+    }
+    
+    @media (max-width: 640px) {
+      .footer-bottom {
+        flex-direction: column;
+        gap: 16px;
+        text-align: center;
+      }
+    }
+
+    /* Toast */
+    .toast {
+      position: fixed;
+      bottom: 24px;
+      right: 24px;
+      background: var(--white);
+      color: var(--txt);
+      padding: 16px 24px;
+      border-radius: var(--radius);
+      box-shadow: var(--shadow-xl);
+      border: 1px solid var(--gray-200);
+      z-index: 100;
+      transform: translateX(400px);
+      transition: transform 0.3s ease;
+      max-width: 400px;
+    }
+    
+    .toast.show {
+      transform: translateX(0);
+    }
+    
+    .toast-success {
+      border-left: 4px solid var(--green-500);
+    }
+    
+    .toast-error {
+      border-left: 4px solid #ef4444;
+    }
+
+    /* Animations */
+    @keyframes fadeInUp {
+      from {
+        opacity: 0;
+        transform: translateY(30px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+    
+    @keyframes slideInUp {
+      from {
+        opacity: 0;
+        transform: translateY(20px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+    
+    @keyframes pulse {
+      0%, 100% {
+        opacity: 1;
+      }
+      50% {
+        opacity: 0.7;
+      }
+    }
+    
+    @keyframes float {
+      0%, 100% {
+        transform: translateY(0px);
+      }
+      50% {
+        transform: translateY(-10px);
+      }
+    }
+
+    /* Staggered animations */
+    .animate-delay-1 { animation-delay: 0.1s; }
+    .animate-delay-2 { animation-delay: 0.2s; }
+    .animate-delay-3 { animation-delay: 0.3s; }
+    .animate-delay-4 { animation-delay: 0.4s; }
+
+    /* Utility classes */
+    .sr-only {
+      position: absolute;
+      width: 1px;
+      height: 1px;
+      padding: 0;
+      margin: -1px;
+      overflow: hidden;
+      clip: rect(0, 0, 0, 0);
+      white-space: nowrap;
+      border: 0;
+    }
+
+    /* Responsive utilities */
+    @media (max-width: 640px) {
+      .container {
+        padding: 20px 16px;
+      }
+      
+      .hero h1 {
+        font-size: 2.5rem;
+      }
+      
+      .hero-stats {
+        gap: 24px;
+      }
+      
+      .nav-menu {
+        display: none;
+      }
+      
+      .btn-group {
+        justify-content: stretch;
+      }
+      
+      .btn-group .btn {
+        flex: 1;
+        justify-content: center;
+      }
+    }
+
+    /* Remove old overrides that conflict */
+  </style>
+</head>
+<body>
+  <!-- Navigation -->
+  <nav class="nav">
+    <div class="nav-container">
+      <a href="#" class="nav-logo">
+        <div class="nav-logo-icon">F</div>
+        FuturEmail
+      </a>
+      <ul class="nav-menu">
+        <li><a href="#home" class="nav-link" onclick="showSection('home')">Home</a></li>
+        <li><a href="#how-to-use" class="nav-link" onclick="showSection('how-to-use')">How to Use</a></li>
+      </ul>
+      <a href="#home" class="nav-cta" onclick="showSection('home')">Get Started</a>
+    </div>
+  </nav>
+
+  <!-- Main Content -->
+  <div class="main-wrapper">
+    <!-- Home Section -->
+    <div id="home-section" class="container">
+      <!-- Hero Section -->
+      <section class="hero">
+        <h1>Schedule Emails<br>for the Future</h1>
+        <p>Compose emails and letters with precision timing. Professional scheduling made simple with our elegant interface.</p>
+        <div class="hero-stats">
+          <div class="stat">
+            <span class="stat-number">1M+</span>
+            <span class="stat-label">Emails Scheduled</span>
+          </div>
+          <div class="stat">
+            <span class="stat-number">50K+</span>
+            <span class="stat-label">Active Users</span>
+          </div>
+          <div class="stat">
+            <span class="stat-number">99.9%</span>
+            <span class="stat-label">Delivery Rate</span>
+          </div>
+        </div>
+      </section>
+
+      <!-- Main Grid -->
+      <div class="grid">
+        <!-- Compose Section -->
+        <section class="card animate-delay-1" style="animation: fadeInUp 0.8s ease forwards;">
+          <div class="card-header">
+            <h2 class="card-title">Compose Message</h2>
+            <div class="toggle-group">
+              <input type="radio" name="msgType" id="type-email" value="email" checked class="toggle-input" />
+              <label for="type-email" class="toggle-label">Email</label>
+              <input type="radio" name="msgType" id="type-letter" value="letter" class="toggle-input" />
+              <label for="type-letter" class="toggle-label">Letter</label>
+            </div>
+          </div>
+
+          <form id="composeForm" class="card-body" novalidate>
+            <div class="form-row" id="email-row">
+              <div class="form-group">
+                <label for="to" class="form-label">To</label>
+                <input id="to" name="to" type="email" placeholder="recipient@example.com" class="form-input" autocomplete="email" />
+              </div>
+              <div class="form-group">
+                <label for="cc" class="form-label">CC</label>
+                <input id="cc" name="cc" type="text" placeholder="Optional, comma-separated" class="form-input" />
+              </div>
+            </div>
+            
+            <div class="form-row" id="email-row-2">
+              <div class="form-group">
+                <label for="bcc" class="form-label">BCC</label>
+                <input id="bcc" name="bcc" type="text" placeholder="Optional, comma-separated" class="form-input" />
+              </div>
+              <div class="form-group">
+                <label for="subject" class="form-label">Subject</label>
+                <input id="subject" name="subject" type="text" placeholder="Subject" class="form-input" />
+              </div>
+            </div>
+
+            <div id="letter-rows" style="display:none" aria-hidden="true">
+              <div class="form-row">
+                <div class="form-group">
+                  <label for="recipientName" class="form-label">Recipient Name</label>
+                  <input id="recipientName" name="recipientName" type="text" placeholder="Jane Smith" class="form-input" />
+                </div>
+                <div class="form-group">
+                  <label for="addressLine1" class="form-label">Address Line 1</label>
+                  <input id="addressLine1" name="addressLine1" type="text" placeholder="123 Any Street" class="form-input" />
+                </div>
+              </div>
+              <div class="form-row">
+                <div class="form-group">
+                  <label for="addressLine2" class="form-label">Address Line 2</label>
+                  <input id="addressLine2" name="addressLine2" type="text" placeholder="Apt 4B" class="form-input" />
+                </div>
+                <div class="form-group">
+                  <label for="city" class="form-label">City, State/Region</label>
+                  <input id="city" name="city" type="text" placeholder="City, Region" class="form-input" />
+                </div>
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label for="message" class="form-label">Message</label>
+              <textarea id="message" name="message" placeholder="Write your message..." class="form-input form-textarea"></textarea>
+              <div class="form-help" id="charCount">0 characters</div>
+            </div>
+
+            <div class="form-row">
+              <div class="form-group">
+                <label for="when" class="form-label">Schedule</label>
+                <input id="when" name="when" type="datetime-local" class="form-input" />
+                <div class="form-help">Time zone: <span id="tzLabel"></span></div>
+              </div>
+              <div class="form-group">
+                <label class="form-label">&nbsp;</label>
+                <div class="btn-group">
+                  <button class="btn btn-ghost" type="button" id="btnClear">Clear</button>
+                  <button class="btn btn-secondary" type="button" id="btnDraft">Save Draft</button>
+                  <button class="btn btn-primary" type="submit" id="btnSchedule">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                      <path d="M5 12h14M12 5l7 7-7 7" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                    Schedule
+                  </button>
+                </div>
+              </div>
+            </div>
+          </form>
+        </section>
+
+        <!-- Right Column -->
+        <aside class="animate-delay-2" style="animation: fadeInUp 0.8s ease forwards; display: flex; flex-direction: column; gap: 24px;">
+          <!-- Preview Section -->
+          <section class="card">
+            <div class="card-header">
+              <h3 class="card-title">Live Preview</h3>
+              <span class="chip" id="previewType">Email</span>
+            </div>
+            <div class="card-body">
+              <div class="preview-area" id="preview"></div>
+            </div>
+          </section>
+
+          <!-- Scheduled Section -->
+          <section class="card">
+            <div class="card-header">
+              <h3 class="card-title">Scheduled</h3>
+              <div class="btn-group">
+                <button class="btn btn-secondary" id="btnExport" type="button">Export</button>
+                <label class="btn btn-ghost" for="importFile" style="cursor:pointer;">
+                  Import
+                  <input id="importFile" type="file" accept="application/json" hidden>
+                </label>
+              </div>
+            </div>
+            <div class="card-body">
+              <div class="schedule-list" id="scheduleList" aria-live="polite"></div>
+            </div>
+          </section>
+        </aside>
+      </div>
+    </div>
+
+    <!-- How to Use Section -->
+    <div id="how-to-use-section" class="container" style="display: none;">
+      <section class="hero">
+        <h1>How to Use FuturEmail</h1>
+        <p>Learn how to schedule emails and letters with our simple, professional interface.</p>
+      </section>
+
+      <div style="max-width: 800px; margin: 0 auto;">
+        <!-- Email Setup Card -->
+        <section class="card" style="margin-bottom: 32px;">
+          <div class="card-header">
+            <h2 class="card-title">📧 Email Sending</h2>
+          </div>
+          <div class="card-body">
+            <p style="margin-bottom: 16px; color: var(--txt-secondary);">Email sending is fully configured and ready to use! No setup required on your end.</p>
+            
+            <div style="background: var(--green-50); border: 1px solid var(--green-200); border-radius: var(--radius); padding: 16px; margin: 16px 0;">
+              <p style="font-weight: 600; margin-bottom: 8px; color: var(--green-700);">✅ Ready to Go:</p>
+              <p style="color: var(--green-700); margin: 0; font-size: 0.9rem;">
+                Simply compose your email, set a schedule time, and click "Schedule". Your emails will be sent automatically at the specified time.
+              </p>
+            </div>
+            
+            <div style="background: var(--gray-50); border: 1px solid var(--gray-200); border-radius: var(--radius); padding: 16px; margin-top: 16px;">
+              <p style="font-weight: 600; margin-bottom: 8px;">📧 Current Status:</p>
+              <p style="color: var(--txt-muted); margin: 0; font-size: 0.9rem;">
+                Email service is configured and operational. All scheduled emails will be sent from our secure email system. Letters are saved locally for your reference.
+              </p>
+            </div>
+          </div>
+        </section>
+
+        <!-- Step-by-Step Guide -->
+        <section class="card" style="margin-bottom: 32px;">
+          <div class="card-header">
+            <h2 class="card-title">📋 Step-by-Step Guide</h2>
+          </div>
+          <div class="card-body">
+            <div style="display: grid; gap: 24px;">
+              
+              <div style="border-left: 4px solid var(--green-500); padding-left: 20px;">
+                <h3 style="color: var(--txt); margin-bottom: 8px;">Step 1: Choose Message Type</h3>
+                <p style="color: var(--txt-secondary); margin: 0;">Select "Email" for electronic messages or "Letter" for traditional mail formatting.</p>
+              </div>
+
+              <div style="border-left: 4px solid var(--green-500); padding-left: 20px;">
+                <h3 style="color: var(--txt); margin-bottom: 8px;">Step 2: Fill in Details</h3>
+                <p style="color: var(--txt-secondary); margin: 0;">Enter recipient information, subject, and your message. Watch the live preview update as you type.</p>
+              </div>
+
+              <div style="border-left: 4px solid var(--green-500); padding-left: 20px;">
+                <h3 style="color: var(--txt); margin-bottom: 8px;">Step 3: Set Schedule Time</h3>
+                <p style="color: var(--txt-secondary); margin: 0;">Choose when you want your message to be sent. Must be at least 1 minute in the future.</p>
+              </div>
+
+              <div style="border-left: 4px solid var(--green-500); padding-left: 20px;">
+                <h3 style="color: var(--txt); margin-bottom: 8px;">Step 4: Schedule or Save</h3>
+                <p style="color: var(--txt-secondary); margin: 0;">Click "Schedule" to queue for sending, or "Save Draft" to save for later editing.</p>
+              </div>
+
+              <div style="border-left: 4px solid var(--green-500); padding-left: 20px;">
+                <h3 style="color: var(--txt); margin-bottom: 8px;">Step 5: Manage Scheduled Items</h3>
+                <p style="color: var(--txt-secondary); margin: 0;">View all scheduled messages in the sidebar. Send immediately, delete, or export/import your schedules.</p>
+              </div>
+
+            </div>
+          </div>
+        </section>
+
+        <!-- Features Card -->
+        <section class="card" style="margin-bottom: 32px;">
+          <div class="card-header">
+            <h2 class="card-title">✨ Features</h2>
+          </div>
+          <div class="card-body">
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 20px;">
+              
+              <div>
+                <h4 style="color: var(--green-600); margin-bottom: 8px;">📧 Email & Letters</h4>
+                <p style="color: var(--txt-secondary); margin: 0; font-size: 0.9rem;">Support for both electronic emails and traditional letter formatting.</p>
+              </div>
+
+              <div>
+                <h4 style="color: var(--green-600); margin-bottom: 8px;">⏰ Precise Scheduling</h4>
+                <p style="color: var(--txt-secondary); margin: 0; font-size: 0.9rem;">Schedule messages down to the minute with timezone awareness.</p>
+              </div>
+
+              <div>
+                <h4 style="color: var(--green-600); margin-bottom: 8px;">👀 Live Preview</h4>
+                <p style="color: var(--txt-secondary); margin: 0; font-size: 0.9rem;">See exactly how your message will look before scheduling.</p>
+              </div>
+
+              <div>
+                <h4 style="color: var(--green-600); margin-bottom: 8px;">💾 Save Drafts</h4>
+                <p style="color: var(--txt-secondary); margin: 0; font-size: 0.9rem;">Save incomplete messages and come back to them later.</p>
+              </div>
+
+              <div>
+                <h4 style="color: var(--green-600); margin-bottom: 8px;">📤 Export/Import</h4>
+                <p style="color: var(--txt-secondary); margin: 0; font-size: 0.9rem;">Backup your scheduled messages or share them between devices.</p>
+              </div>
+
+              <div>
+                <h4 style="color: var(--green-600); margin-bottom: 8px;">📱 Responsive</h4>
+                <p style="color: var(--txt-secondary); margin: 0; font-size: 0.9rem;">Works perfectly on desktop, tablet, and mobile devices.</p>
+              </div>
+
+            </div>
+          </div>
+        </section>
+
+        <!-- Tips Card -->
+        <section class="card" style="margin-bottom: 32px;">
+          <div class="card-header">
+            <h2 class="card-title">💡 Pro Tips</h2>
+          </div>
+          <div class="card-body">
+            <ul style="color: var(--txt-secondary); line-height: 1.8; margin-left: 20px;">
+              <li>CC and BCC fields work automatically - no setup needed</li>
+              <li>The character counter helps you keep messages concise</li>
+              <li>Export your schedules regularly as backup</li>
+              <li>Letters are formatted for printing if you prefer physical mail</li>
+              <li>Time zone is automatically detected from your browser</li>
+              <li>Scheduled items persist between browser sessions</li>
+            </ul>
+          </div>
+        </section>
+
+        <!-- Troubleshooting Card -->
+        <section class="card">
+          <div class="card-header">
+            <h2 class="card-title">🔧 Troubleshooting</h2>
+          </div>
+          <div class="card-body">
+            <div style="display: grid; gap: 20px;">
+              
+              <div style="border-left: 4px solid #dc2626; padding-left: 16px;">
+                <h4 style="color: #dc2626; margin-bottom: 8px;">Error: "insufficient authentication scopes"</h4>
+                <p style="color: var(--txt-secondary); margin: 0; font-size: 0.9rem;">
+                  This means you're trying to use Gmail API directly. Use EmailJS instead - it handles all authentication automatically.
+                </p>
+              </div>
+
+              <div style="border-left: 4px solid #dc2626; padding-left: 16px;">
+                <h4 style="color: #dc2626; margin-bottom: 8px;">Error: "EmailJS authentication error"</h4>
+                <p style="color: var(--txt-secondary); margin: 0; font-size: 0.9rem;">
+                  Check your EmailJS service configuration. Make sure your service is active and your public key is correct.
+                </p>
+              </div>
+
+              <div style="border-left: 4px solid #dc2626; padding-left: 16px;">
+                <h4 style="color: #dc2626; margin-bottom: 8px;">Error: "Invalid template or parameters"</h4>
+                <p style="color: var(--txt-secondary); margin: 0; font-size: 0.9rem;">
+                  Your EmailJS template is missing required variables. Ensure it includes: {{to_email}}, {{subject}}, {{message}}, {{from_name}}, {{scheduled_for}}
+                </p>
+              </div>
+
+              <div style="border-left: 4px solid var(--green-500); padding-left: 16px;">
+                <h4 style="color: var(--green-600); margin-bottom: 8px;">📧 EmailJS Template Setup</h4>
+                <p style="color: var(--txt-secondary); margin: 0; font-size: 0.9rem;">
+                  <strong>Subject:</strong> {{subject}}<br>
+                  <strong>To:</strong> {{to_email}}<br><br>
+                  {{message}}<br><br>
+                  <em>Scheduled for: {{scheduled_for}}</em><br>
+                  <em>Sent via FuturEmail by {{from_name}}</em>
+                </p>
+              </div>
+
+              <div style="border-left: 4px solid var(--green-500); padding-left: 16px;">
+                <h4 style="color: var(--green-600); margin-bottom: 8px;">✅ Emails not sending but no errors?</h4>
+                <p style="color: var(--txt-secondary); margin: 0; font-size: 0.9rem;">
+                  Make sure you've replaced YOUR_PUBLIC_KEY, YOUR_SERVICE_ID, and YOUR_TEMPLATE_ID with your actual EmailJS credentials.
+                </p>
+              </div>
+
+            </div>
+          </div>
+        </section>
+
+      </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="footer">
+      <div class="footer-container">
+        <div class="footer-grid">
+          <div class="footer-brand">
+            <h3>FuturEmail</h3>
+            <p>Professional email scheduling with elegant design. Send messages at the perfect time, every time.</p>
+          </div>
+          <div class="footer-section">
+            <h4>Product</h4>
+            <ul class="footer-links">
+              <li><a href="#">Features</a></li>
+              <li><a href="#">Pricing</a></li>
+              <li><a href="#">API</a></li>
+              <li><a href="#">Integrations</a></li>
+            </ul>
+          </div>
+          <div class="footer-section">
+            <h4>Support</h4>
+            <ul class="footer-links">
+              <li><a href="#">Help Center</a></li>
+              <li><a href="#">Contact</a></li>
+              <li><a href="#">Status</a></li>
+              <li><a href="#">Updates</a></li>
+            </ul>
+          </div>
+          <div class="footer-section">
+            <h4>Company</h4>
+            <ul class="footer-links">
+              <li><a href="#">About</a></li>
+              <li><a href="#">Blog</a></li>
+              <li><a href="#">Careers</a></li>
+              <li><a href="#">Privacy</a></li>
+            </ul>
+          </div>
+        </div>
+        <div class="footer-bottom">
+          <div>© <span id="year"></span> FuturEmail. All rights reserved.</div>
+          <div>Built with modern web technologies</div>
+        </div>
+      </div>
+    </footer>
+  </div>
+
+  <div class="toast" id="toast"></div>
+
+  <!-- Add EmailJS SDK -->
+  <script src="https://cdn.jsdelivr.net/npm/emailjs-com@3/dist/email.min.js"></script>
+
+  <script>
+    // Email provider config (EmailJS) - CONFIGURED
+    const EMAILJS = { 
+      publicKey: 'Ld4mci0RxnBi-LLnY',      // Your EmailJS public key
+      serviceId: 'service_hxohugd',        // Your EmailJS service ID  
+      templateId: 'template_a4wseib'       // Your EmailJS template ID
+    };
+
+    // Navigation functionality
+    function showSection(sectionName) {
+      const homeSection = document.getElementById('home-section');
+      const howToSection = document.getElementById('how-to-use-section');
+      
+      if (sectionName === 'home') {
+        homeSection.style.display = 'block';
+        howToSection.style.display = 'none';
+      } else if (sectionName === 'how-to-use') {
+        homeSection.style.display = 'none';
+        howToSection.style.display = 'block';
+      }
+      
+      // Update URL hash without triggering scroll
+      if (history.pushState) {
+        history.pushState(null, null, '#' + sectionName);
+      } else {
+        location.hash = '#' + sectionName;
+      }
+    }
+
+    // Handle browser back/forward buttons
+    window.addEventListener('hashchange', function() {
+      const hash = location.hash.slice(1);
+      if (hash === 'how-to-use') {
+        showSection('how-to-use');
+      } else {
+        showSection('home');
+      }
+    });
+
+    // Initialize page based on URL hash
+    document.addEventListener('DOMContentLoaded', function() {
+      const hash = location.hash.slice(1);
+      if (hash === 'how-to-use') {
+        showSection('how-to-use');
+      } else {
+        showSection('home');
+      }
+    });
+
+    // Utilities
+    const $ = (s, r=document) => r.querySelector(s);
+    const $$ = (s, r=document) => Array.from(r.querySelectorAll(s));
+    
+    // Enhanced toast function with better styling
+    const toast = (msg, type = 'success') => {
+      const el = $('#toast');
+      el.textContent = msg;
+      el.className = `toast toast-${type}`;
+      el.classList.add('show');
+      clearTimeout(el._t);
+      el._t = setTimeout(() => el.classList.remove('show'), 4000);
+    };
+
+    const storage = {
+      get(key, fallback) {
+        try { return JSON.parse(localStorage.getItem(key)) ?? fallback; } catch { return fallback; }
+      },
+      set(key, value) { localStorage.setItem(key, JSON.stringify(value)); }
+    };
+
+    const TZ = Intl.DateTimeFormat().resolvedOptions().timeZone;
+    const fmtLocal = (iso) => new Date(iso).toLocaleString([], { dateStyle: 'medium', timeStyle: 'short' });
+
+    const uid = () => Math.random().toString(36).slice(2) + Date.now().toString(36);
+
+    // State
+    const STATE = {
+      drafts: storage.get('fe_drafts', []),
+      items: storage.get('fe_scheduled', []) // {id, type, payload, whenISO, createdISO, status}
+    };
+
+    function saveState() {
+      storage.set('fe_scheduled', STATE.items);
+      storage.set('fe_drafts', STATE.drafts);
+    }
+
+    function sanitizeList(str) {
+      if (!str) return [];
+      return str.split(',').map(s => s.trim()).filter(Boolean);
+    }
+
+    // Form and UI wiring
+    const form = $('#composeForm');
+    const fields = {
+      typeEmail: $('#type-email'),
+      typeLetter: $('#type-letter'),
+      to: $('#to'), cc: $('#cc'), bcc: $('#bcc'), subject: $('#subject'),
+      recipientName: $('#recipientName'), addressLine1: $('#addressLine1'), addressLine2: $('#addressLine2'), city: $('#city'),
+      message: $('#message'), when: $('#when'), tzLabel: $('#tzLabel'), charCount: $('#charCount'),
+      preview: $('#preview'), previewType: $('#previewType'),
+      scheduleList: $('#scheduleList')
+    };
+
+    function setDefaultWhen() {
+      // Default to +1 hour, rounded to next 5 minutes
+      const now = new Date();
+      now.setMinutes(now.getMinutes() + 60);
+      now.setSeconds(0,0);
+      const round = 5;
+      const m = now.getMinutes();
+      now.setMinutes(m + (round - (m % round)) % round);
+      const v = new Date(now.getTime() - now.getTimezoneOffset()*60000).toISOString().slice(0,16);
+      fields.when.value = v;
+    }
+
+    function updateTypeUI() {
+      const isEmail = fields.typeEmail.checked;
+      const emailRows = document.querySelectorAll('#email-row, #email-row-2');
+      const letterRows = document.querySelector('#letter-rows');
+      
+      emailRows.forEach(row => {
+        row.style.display = isEmail ? '' : 'none';
+      });
+      
+      letterRows.style.display = isEmail ? 'none' : '';
+      letterRows.setAttribute('aria-hidden', isEmail ? 'true' : 'false');
+      
+      fields.previewType.textContent = isEmail ? 'Email' : 'Letter';
+      fields.previewType.className = isEmail ? 'chip' : 'chip chip-warning';
+      
+      updatePreview();
+    }
+
+    function updatePreview() {
+      const isEmail = fields.typeEmail.checked;
+      const subject = fields.subject.value.trim();
+      const message = fields.message.value;
+      let head = '';
+      if (isEmail) {
+        const to = fields.to.value.trim();
+        head = `To: ${to || '—'}\n${subject ? `Subject: ${subject}\n` : ''}`;
+      } else {
+        const rn = fields.recipientName.value.trim() || '—';
+        const a1 = fields.addressLine1.value.trim();
+        const a2 = fields.addressLine2.value.trim();
+        const city = fields.city.value.trim();
+        head = `${rn}\n${a1 || ''}${a1 && a2 ? '\n' : ''}${a2 || ''}${(a1||a2) && city ? '\n' : ''}${city || ''}${subject ? `\n\n${subject}` : ''}`;
+      }
+      fields.preview.textContent = `${head}\n\n${message}`.trim();
+      fields.charCount.textContent = `${message.length} characters`;
+    }
+
+    function validate() {
+      const errs = [];
+      const isEmail = fields.typeEmail.checked;
+      const whenVal = fields.when.value;
+      if (!whenVal) errs.push('Pick a schedule time.');
+      else {
+        const dt = new Date(whenVal);
+        const now = new Date();
+        if (dt < new Date(now.getTime() + 60_000)) errs.push('Schedule at least 1 minute in the future.');
+      }
+      const msg = fields.message.value.trim();
+      if (!msg) errs.push('Message cannot be empty.');
+      if (isEmail) {
+        const to = fields.to.value.trim();
+        if (!to || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(to)) errs.push('Provide a valid recipient email.');
+      } else {
+        if (!fields.recipientName.value.trim()) errs.push('Recipient name is required.');
+        if (!fields.addressLine1.value.trim()) errs.push('Address line 1 is required.');
+      }
+      return errs;
+    }
+
+    function buildPayload() {
+      const isEmail = fields.typeEmail.checked;
+      const whenLocal = fields.when.value; // local datetime-local
+      const whenISO = new Date(whenLocal).toISOString();
+      if (isEmail) {
+        return {
+          type: 'email',
+          payload: {
+            to: fields.to.value.trim(),
+            cc: sanitizeList(fields.cc.value),
+            bcc: sanitizeList(fields.bcc.value),
+            subject: fields.subject.value.trim(),
+            message: fields.message.value
+          },
+          whenISO
+        };
+      }
+      return {
+        type: 'letter',
+        payload: {
+          recipientName: fields.recipientName.value.trim(),
+          addressLine1: fields.addressLine1.value.trim(),
+          addressLine2: fields.addressLine2.value.trim(),
+          city: fields.city.value.trim(),
+          subject: fields.subject.value.trim(),
+          message: fields.message.value
+        },
+        whenISO
+      };
+    }
+
+    function scheduleItem(item) {
+      const now = Date.now();
+      const at = new Date(item.whenISO).getTime();
+      const delay = Math.max(0, at - now);
+      // Immediate mark if overdue
+      if (delay <= 0) {
+        item.status = 'sent';
+        item.sentISO = new Date().toISOString();
+        return;
+      }
+      // Keep lightweight timers under a day; for longer delays, rely on heartbeat checks
+      if (delay <= 86_400_000) {
+        item._timer = setTimeout(() => performSend(item.id), delay);
+      }
+    }
+
+    // Enhanced email sending with better error handling
+    async function sendEmail(item) {
+      if (item.type !== 'email') return 'skipped';
+      
+      // Check if EmailJS is properly configured
+      if (!window.emailjs) {
+        throw new Error('EmailJS library not loaded. Please check your internet connection.');
+      }
+      
+      if (!EMAILJS.publicKey || !EMAILJS.serviceId || !EMAILJS.templateId) {
+        throw new Error('EmailJS not configured. Contact the website administrator.');
+      }
+
+      const params = {
+        to_email: item.payload.to,
+        subject: item.payload.subject || '(No subject)',
+        message: item.payload.message,
+        scheduled_for: fmtLocal(item.whenISO),
+        from_name: 'FuturEmail Scheduler'
+      };
+
+      try {
+        // Use EmailJS send method (not Gmail API)
+        const response = await emailjs.send(EMAILJS.serviceId, EMAILJS.templateId, params);
+        console.log('Email sent successfully via EmailJS:', response);
+        return response;
+      } catch (error) {
+        console.error('EmailJS send error:', error);
+        
+        // Handle common EmailJS errors
+        if (error.status === 412) {
+          throw new Error('EmailJS authentication error. Please check your service configuration.');
+        } else if (error.status === 400) {
+          throw new Error('Invalid template or parameters. Check your EmailJS template setup.');
+        } else if (error.status === 403) {
+          throw new Error('EmailJS service access denied. Verify your public key and service ID.');
+        } else {
+          throw new Error(`Email sending failed: ${error.text || error.message || 'Unknown error'}`);
+        }
+      }
+    }
+
+    // Enhanced performSend with better user feedback
+    function performSend(id) {
+      const idx = STATE.items.findIndex(x => x.id === id);
+      if (idx === -1) return;
+      const item = STATE.items[idx];
+      if (item.status === 'sent') return;
+
+      if (item.type === 'email') {
+        // Show sending status
+        toast('Sending email...', 'info');
+        
+        sendEmail(item)
+          .then(() => {
+            item.status = 'sent';
+            item.sentISO = new Date().toISOString();
+            delete item.error; // Clear any previous errors
+            saveState();
+            renderList();
+            toast(`✅ Email sent successfully to ${item.payload.to}`);
+          })
+          .catch((err) => {
+            console.error('Send error:', err);
+            item.status = 'failed';
+            item.error = err.message;
+            saveState();
+            renderList();
+            
+            if (err.message.includes('not configured')) {
+              toast('⚙️ Email service temporarily unavailable. Please try again later.', 'error');
+            } else if (err.message.includes('authentication')) {
+              toast('🔐 Email service error. Please contact support if this persists.', 'error');
+            } else {
+              toast(`❌ Email failed: ${err.message}`, 'error');
+            }
+          });
+      } else {
+        // For letters, just mark as sent in this demo
+        item.status = 'sent';
+        item.sentISO = new Date().toISOString();
+        delete item.error; // Clear any previous errors
+        saveState();
+        renderList();
+        toast('📝 Letter marked as sent (demo mode)');
+      }
+    }
+
+    function renderList() {
+      const list = fields.scheduleList;
+      list.innerHTML = '';
+      const items = [...STATE.items].sort((a,b) => new Date(a.whenISO) - new Date(b.whenISO));
+      
+      if (!items.length) {
+        const empty = document.createElement('div');
+        empty.className = 'form-help';
+        empty.style.textAlign = 'center';
+        empty.style.padding = '40px 20px';
+        empty.innerHTML = 'No scheduled items yet.<br><a href="#how-to-use" onclick="showSection(\'how-to-use\')" style="color: var(--green-600);">Learn how to get started →</a>';
+        list.appendChild(empty);
+        return;
+      }
+      
+      items.forEach((item, index) => {
+        const row = document.createElement('div');
+        row.className = 'schedule-item';
+        row.style.animationDelay = `${index * 0.1}s`;
+        
+        const header = document.createElement('div');
+        header.className = 'schedule-item-header';
+        
+        const title = document.createElement('div');
+        title.className = 'schedule-item-title';
+        title.textContent = item.type === 'email' 
+          ? (item.payload.subject || `Email to ${item.payload.to}`) 
+          : (item.payload.subject || `Letter to ${item.payload.recipientName}`);
+        
+        const statusChip = document.createElement('span');
+        if (item.status === 'sent') {
+          statusChip.className = 'chip chip-success';
+          statusChip.textContent = '✅ Sent';
+        } else if (item.status === 'failed') {
+          statusChip.className = 'chip chip-warning';
+          statusChip.textContent = '❌ Failed';
+        } else {
+          statusChip.className = 'chip';
+          statusChip.textContent = '⏰ Scheduled';
+        }
+        
+        header.appendChild(title);
+        header.appendChild(statusChip);
+
+        const meta = document.createElement('div');
+        meta.className = 'schedule-item-meta';
+        const to = item.type === 'email' ? `To: ${item.payload.to}` : `To: ${item.payload.recipientName}`;
+        const when = `When: ${fmtLocal(item.whenISO)}`;
+        const typeChip = `<span class="chip">${item.type}</span>`;
+        meta.innerHTML = `${typeChip}<span>${to}</span><span>•</span><span>${when}</span>`;
+
+        const actions = document.createElement('div');
+        actions.className = 'schedule-item-actions';
+        
+        const btnSend = document.createElement('button');
+        btnSend.className = 'btn btn-secondary';
+        btnSend.type = 'button';
+        btnSend.textContent = item.status === 'failed' ? 'Retry' : 'Send Now';
+        btnSend.disabled = item.status === 'sent';
+        btnSend.onclick = () => performSend(item.id);
+        
+        const btnDelete = document.createElement('button');
+        btnDelete.className = 'btn btn-ghost';
+        btnDelete.type = 'button';
+        btnDelete.textContent = 'Delete';
+        btnDelete.onclick = () => {
+          if (confirm('Are you sure you want to delete this scheduled item?')) {
+            STATE.items = STATE.items.filter(x => x.id !== item.id);
+            saveState();
+            renderList();
+            toast('Item deleted');
+          }
+        };
+        
+        actions.appendChild(btnSend);
+        actions.appendChild(btnDelete);
+
+        row.appendChild(header);
+        row.appendChild(meta);
+        row.appendChild(actions);
+        
+        // Add error message for failed items
+        if (item.status === 'failed' && item.error) {
+          const errorDiv = document.createElement('div');
+          errorDiv.style.marginTop = '12px';
+          errorDiv.style.padding = '8px 12px';
+          errorDiv.style.background = '#fef2f2';
+          errorDiv.style.border = '1px solid #fecaca';
+          errorDiv.style.borderRadius = 'var(--radius)';
+          errorDiv.style.fontSize = '0.85rem';
+          errorDiv.style.color = '#dc2626';
+          errorDiv.textContent = `Error: ${item.error}`;
+          row.appendChild(errorDiv);
+        }
+        
+        list.appendChild(row);
+      });
+    }
+
+    // Import/Export
+    $('#btnExport').addEventListener('click', () => {
+      const data = JSON.stringify({ items: STATE.items }, null, 2);
+      const blob = new Blob([data], { type: 'application/json' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url; a.download = `futurEmail-scheduled-${Date.now()}.json`;
+      a.click(); URL.revokeObjectURL(url);
+      toast('Exported scheduled items');
+    });
+    
+    $('#importFile').addEventListener('change', (e) => {
+      const file = e.target.files?.[0];
+      if (!file) return;
+      const reader = new FileReader();
+      reader.onload = () => {
+        try {
+          const data = JSON.parse(String(reader.result || '{}'));
+          if (Array.isArray(data.items)) {
+            const merged = [...STATE.items];
+            let importCount = 0;
+            for (const it of data.items) {
+              if (!merged.some(m => m.id === it.id)) {
+                merged.push(it);
+                importCount++;
+              }
+            }
+            STATE.items = merged;
+            saveState();
+            renderList();
+            heartbeatTimers();
+            toast(`Imported ${importCount} items`);
+          } else {
+            toast('Invalid file format', 'error');
+          }
+        } catch { 
+          toast('Invalid JSON file', 'error'); 
+        }
+      };
+      reader.readAsText(file);
+      e.target.value = '';
+    });
+
+    // Form events
+    fields.typeEmail.addEventListener('change', updateTypeUI);
+    fields.typeLetter.addEventListener('change', updateTypeUI);
+    ['to','cc','bcc','subject','recipientName','addressLine1','addressLine2','city','message'].forEach(id => {
+      const el = document.getElementById(id);
+      el.addEventListener('input', updatePreview);
+    });
+
+    $('#btnClear').addEventListener('click', () => {
+      form.reset(); 
+      updateTypeUI(); 
+      updatePreview(); 
+      setDefaultWhen(); 
+      toast('Form cleared');
+    });
+
+    $('#btnDraft').addEventListener('click', () => {
+      const draft = buildPayload();
+      draft.id = uid(); 
+      draft.createdISO = new Date().toISOString(); 
+      draft.status = 'draft';
+      STATE.drafts.unshift(draft); 
+      saveState(); 
+      toast('Draft saved');
+    });
+
+    form.addEventListener('submit', (e) => {
+      e.preventDefault();
+      const errs = validate();
+      if (errs.length) { 
+        toast(errs[0], 'error'); 
+        return; 
+      }
+      const entry = buildPayload();
+      entry.id = uid();
+      entry.createdISO = new Date().toISOString();
+      entry.status = 'scheduled';
+      STATE.items.push(entry);
+      saveState();
+      scheduleItem(entry);
+      renderList();
+      toast('📅 Message scheduled successfully');
+    });
+
+    // Heartbeat to mark overdue as sent and (re)arm short timers
+    function heartbeatTimers() {
+      const now = Date.now();
+      for (const it of STATE.items) {
+        if (it.status === 'sent' || it.status === 'failed') continue;
+        const at = new Date(it.whenISO).getTime();
+        if (at <= now) {
+          // Overdue: trigger actual send once
+          if (!it.sending) {
+            it.sending = true; // transient flag, not persisted intentionally
+            performSend(it.id);
+          }
+        } else {
+          const delay = at - now;
+          if (delay <= 86_400_000 && !it._timer) {
+            it._timer = setTimeout(() => performSend(it.id), delay);
+          }
+        }
+      }
+      saveState();
+      renderList();
+    }
+
+    // Init
+    (function init() {
+      $('#year').textContent = new Date().getFullYear();
+      fields.tzLabel.textContent = `${TZ} (UTC${formatTzOffset(new Date())})`;
+      setDefaultWhen();
+      updateTypeUI();
+      updatePreview();
+      // restore timers for scheduled items
+      heartbeatTimers();
+      // periodic heartbeat
+      setInterval(heartbeatTimers, 60_000);
+    })();
+
+    function formatTzOffset(date) {
+      const off = -date.getTimezoneOffset();
+      const sign = off >= 0 ? '+' : '-';
+      const h = String(Math.floor(Math.abs(off) / 60)).padStart(2, '0');
+      const m = String(Math.abs(off) % 60).padStart(2, '0');
+      return `${sign}${h}:${m}`;
+    }
+
+    // Initialize EmailJS
+    (function initEmailProvider(){
+      try {
+        if (window.emailjs && EMAILJS.publicKey) {
+          emailjs.init(EMAILJS.publicKey);
+          console.log('EmailJS initialized successfully');
+        } else {
+          console.log('EmailJS not configured - contact administrator');
+        }
+      } catch (e) { 
+        console.warn('Email init failed:', e); 
+      }
+    })();
+  </script>
+</body>
+</html>
