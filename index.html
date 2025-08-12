@@ -6,6 +6,13 @@
   <title>FuturEmail — Compose and Schedule</title>
   <meta name="description" content="Compose emails or letters and schedule them with a clean, professional glassmorphism UI." />
   <meta name="color-scheme" content="dark light" />
+  
+  <!-- Cache busting and version control -->
+  <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
+  <meta http-equiv="Pragma" content="no-cache" />
+  <meta http-equiv="Expires" content="0" />
+  <meta name="version" content="2.1.0" />
+  
   <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 256 256'%3E%3Cpath fill='%23ffffff' d='M32 64h192v128H32z'/%3E%3Cpath fill='%2300d4ff' d='M32 64l96 80l96-80z'/%3E%3C/svg%3E" />
   <style>
     /* Professional Gray/White/Green Theme */
@@ -1167,10 +1174,24 @@
 
   <div class="toast" id="toast"></div>
 
-  <!-- Add EmailJS SDK -->
-  <script src="https://cdn.jsdelivr.net/npm/emailjs-com@3/dist/email.min.js"></script>
+  <!-- Add EmailJS SDK with cache busting -->
+  <script src="https://cdn.jsdelivr.net/npm/emailjs-com@3/dist/email.min.js?v=2.1.0"></script>
 
   <script>
+    // Cache busting check - force reload if version mismatch
+    (function checkVersion() {
+      const currentVersion = '2.1.0';
+      const storedVersion = localStorage.getItem('fe_version');
+      
+      if (storedVersion && storedVersion !== currentVersion) {
+        // Clear cache and reload
+        localStorage.clear();
+        sessionStorage.clear();
+        location.reload(true);
+      }
+      
+      localStorage.setItem('fe_version', currentVersion);
+    })();
     // Email provider config (EmailJS) - CONFIGURED
     const EMAILJS = { 
       publicKey: 'Ld4mci0RxnBi-LLnY',      // Your EmailJS public key
